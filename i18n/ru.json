@@ -1,0 +1,17 @@
+{
+	"SHOW_SESSIONS_UNKNOWN": "Неизвестно",
+	"SHOW_SESSIONS_SESSIONS": "Сессии",
+	"SHOW_SESSIONS_NO_SESSIONS": "Нет Сессий",
+	"SHOW_SESSIONS_NO_SESSIONS_DESC": "Может, Вы оффлайн?",
+	"SHOW_SESSIONS_SESSION_NUMERATED": "Сессия №{num}",
+	"SHOW_SESSIONS_STATUS": "Статус",
+	"SHOW_SESSIONS_DEVICE": "Устройство",
+	"SHOW_SESSIONS_DEVICE_DESKTOP": "Компьютер",
+	"SHOW_SESSIONS_DEVICE_MOBILE": "Телефон",
+	"SHOW_SESSIONS_DEVICE_WEB": "Браузер",
+	"SHOW_SESSIONS_OS": "ОС",
+	"SHOW_SESSIONS_ACTIVITIES": "Активности",
+	"SHOW_SESSIONS_SINCE": "начато",
+	"SHOW_SESSIONS_ENDS": "закончится",
+	"SHOW_SESSIONS_SESSION_CURRENT_SESSION": "Текущая сессия"
+}
