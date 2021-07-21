@@ -95,10 +95,10 @@ module.exports = class ShowSessions extends Plugin {
 										.map(activity => {
 											switch (activity.type) {
 												case 0:
-													return `${activity.name}, ${
+													return `${activity.name}${
 														activity.timestamps
 															?.start
-															? `${
+															? `, ${
 																	Messages.SHOW_SESSIONS_SINCE
 															  } <t:${activity.timestamps.start.slice(
 																	0,
@@ -107,11 +107,11 @@ module.exports = class ShowSessions extends Plugin {
 																		.start
 																		.length -
 																		3
-															  )}:R>, `
+															  )}:R>`
 															: ""
 													}${
 														activity.timestamps?.end
-															? `${
+															? `, ${
 																	Messages.SHOW_SESSIONS_ENDS
 															  } <t:${activity.timestamps.end.slice(
 																	0,
