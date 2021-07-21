@@ -155,7 +155,8 @@ module.exports = class ShowSessions extends Plugin {
 										.join("\n    ")}`
 								: false,
 							session.sessionId === currentSession.sessionId
-								? Messages.SHOW_SESSIONS_SESSION_CURRENT + " ✅"
+								? Messages.SHOW_SESSIONS_SESSION_CURRENT_SESSION +
+								  " ✅"
 								: false
 						]
 							.filter(r => r)
