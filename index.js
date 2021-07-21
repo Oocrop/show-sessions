@@ -70,7 +70,7 @@ module.exports = class ShowSessions extends Plugin {
 						? ""
 						: Messages.SHOW_SESSIONS_NO_SESSIONS_DESC,
 				fields: Object.values(sessions)
-					.filter(s => s.id !== "all")
+					.filter(s => s.sessionId !== "all")
 					.map((session, index) => ({
 						name: Messages.SHOW_SESSIONS_SESSION_NUMERATED.format({
 							num: "" + (index + 1)
