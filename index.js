@@ -100,7 +100,7 @@ module.exports = class ShowSessions extends Plugin {
 															?.start
 															? `${
 																	Messages.SHOW_SESSIONS_SINCE
-															  } <t:${activity.timestamps.start.splice(
+															  } <t:${activity.timestamps.start.slice(
 																	0,
 																	activity
 																		.timestamps
@@ -113,7 +113,7 @@ module.exports = class ShowSessions extends Plugin {
 														activity.timestamps?.end
 															? `${
 																	Messages.SHOW_SESSIONS_ENDS
-															  } <t:${activity.timestamps.end.splice(
+															  } <t:${activity.timestamps.end.slice(
 																	0,
 																	activity
 																		.timestamps
