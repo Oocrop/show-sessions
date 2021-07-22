@@ -1,34 +1,15 @@
 const { Plugin } = require("powercord/entities");
 const {
-	// getModuleByDisplayName,
+	getModuleByDisplayName,
 	getModule,
-	i18n: { Messages }
+	i18n: { Messages },
+	React
 } = require("powercord/webpack");
-// const { inject, uninject } = require("powercord/injector");
+const { inject, uninject } = require("powercord/injector");
+const SessionList = require("./components/SessionList");
+const { STATUS, DEVICE, OS } = require("./constants");
 
 powercord.api.i18n.loadAllStrings(require("./i18n"));
-
-const statuses = {
-	online: () => "🟢 " + Messages.STATUS_ONLINE,
-	idle: () => "🌙 " + Messages.STATUS_IDLE,
-	dnd: () => "⛔ " + Messages.STATUS_DND,
-	streaming: () => "🟣 " + Messages.STATUS_STREAMING,
-	invisible: () => "⚫ " + Messages.STATUS_INVISIBLE
-};
-
-const devices = {
-	desktop: () => "🖥 " + Messages.SHOW_SESSIONS_DEVICE_DESKTOP,
-	mobile: () => "📱 " + Messages.SHOW_SESSIONS_DEVICE_MOBILE,
-	web: () => "🌐 " + Messages.SHOW_SESSIONS_DEVICE_WEB
-};
-
-const OSes = {
-	windows: "🪟 Windows",
-	linux: "🐧 Linux",
-	macos: "🍎 MacOS",
-	android: "🤖 Android",
-	ios: "🍎 iOS"
-};
 
 function formatWithoutReact(i18nString, values) {
 	return i18nString.message.replaceAll(/!!\{(.+?)\}!!/g, (_, name) => {
@@ -40,10 +21,52 @@ function formatWithoutReact(i18nString, values) {
 
 module.exports = class ShowSessions extends Plugin {
 	async startPlugin() {
+		this.loadStylesheet("style.css");
 		this.sessionStore = await getModule(["getActiveSession"]);
-		// const ConnectedUserAccountSettings = await getModuleByDisplayName(
-		// 	"ConnectedUserAccountSettings"
-		// );
+		const ConnectedUserAccountSettings = await getModuleByDisplayName(
+			"ConnectedUserAccountSettings"
+		);
+
+		const reactInternals =
+			React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
+				.ReactCurrentDispatcher.current; // thank you Cynthia for figuring this out so I don't have to
+		const ogUseMemo = reactInternals.useMemo;
+		const ogUseState = reactInternals.useState;
+		const ogUseEffect = reactInternals.useEffect;
+		const ogUseLayoutEffect = reactInternals.useLayoutEffect;
+		const ogUseRef = reactInternals.useRef;
+		const ogUseCallback = reactInternals.useCallback;
+
+		reactInternals.useMemo = f => f();
+		reactInternals.useState = v => [v, () => void 0];
+		reactInternals.useEffect = () => null;
+		reactInternals.useLayoutEffect = () => null;
+		reactInternals.useRef = () => ({});
+		reactInternals.useCallback = c => c;
+
+		const UserSettingsAccount = ConnectedUserAccountSettings().type;
+
+		reactInternals.useMemo = ogUseMemo;
+		reactInternals.useState = ogUseState;
+		reactInternals.useEffect = ogUseEffect;
+		reactInternals.useLayoutEffect = ogUseLayoutEffect;
+		reactInternals.useRef = ogUseRef;
+		reactInternals.useCallback = ogUseCallback;
+
+		inject(
+			"show-sessions_account-settings",
+			UserSettingsAccount.prototype,
+			"render",
+			(_, res) => {
+				res.props.children[2].props.children.splice(
+					1,
+					0,
+					React.createElement(SessionList, {})
+				);
+				return res;
+			}
+		);
+
 		powercord.api.commands.registerCommand({
 			command: "sessions",
 			description: "Shows active sessions on your account",
@@ -51,6 +74,7 @@ module.exports = class ShowSessions extends Plugin {
 		});
 	}
 	pluginWillUnload() {
+		uninject("show-sessions_account-settings");
 		powercord.api.commands.unregisterCommand("sessions");
 	}
 
@@ -73,19 +97,19 @@ module.exports = class ShowSessions extends Plugin {
 					.filter(s => s.sessionId !== "all")
 					.map((session, index) => ({
 						name: Messages.SHOW_SESSIONS_SESSION_NUMERATED.format({
-							num: "" + (index + 1)
+							num: index + 1
 						}),
 						value: [
 							`**ID:** \`${session.sessionId}\``,
-							`**${Messages.SHOW_SESSIONS_STATUS}:** ${statuses[
+							`**${Messages.SHOW_SESSIONS_STATUS}:** ${STATUS[
 								session.status
 							]()}`,
 							`**${Messages.SHOW_SESSIONS_DEVICE}:** ${
-								devices[session.clientInfo.client]() ||
+								DEVICE[session.clientInfo.client]() ||
 								"❓ " + Messages.SHOW_SESSIONS_UNKNOWN
 							}`,
-							`**OS:** ${
-								OSes[session.clientInfo.os] ||
+							`**${Messages.SHOW_SESSIONS_OS}:** ${
+								OS[session.clientInfo.os] ||
 								"❓ " + Messages.SHOW_SESSIONS_UNKNOWN
 							}`,
 							session.activities.length > 0
@@ -155,8 +179,7 @@ module.exports = class ShowSessions extends Plugin {
 										.join("\n    ")}`
 								: false,
 							session.sessionId === currentSession.sessionId
-								? Messages.SHOW_SESSIONS_SESSION_CURRENT_SESSION +
-								  " ✅"
+								? Messages.SHOW_SESSIONS_CURRENT_SESSION + " ✅"
 								: false
 						]
 							.filter(r => r)

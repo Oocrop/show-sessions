@@ -1,0 +1,35 @@
+.sessionsGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-auto-flow: row;
+	gap: 20px;
+}
+
+.sessionCard {
+	padding: 16px;
+	gap: 10px;
+	cursor: unset;
+	height: auto;
+}
+.sessionCard:hover {
+	background-color: var(--background-secondary-alt) !important;
+	box-shadow: none;
+	transform: none;
+}
+
+.sessionCard-header {
+	display: flex;
+	gap: 15px;
+}
+.sessionCard-title {
+	word-break: break-all;
+	gap: 10px;
+}
+
+.sessionCard-activity {
+	background-color: var(--background-primary);
+	padding: 10px;
+	margin-bottom: 5px;
+	border-radius: 5px;
+	width: 288px;
+}
