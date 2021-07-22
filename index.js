@@ -154,7 +154,7 @@ module.exports = class ShowSessions extends Plugin {
 													)}](${activity.url})`;
 												case 2:
 													return `${formatWithoutReact(
-														MESSAGES.LISTENING_TO,
+														Messages.LISTENING_TO,
 														{ name: activity.state }
 													)}`;
 												case 3:
