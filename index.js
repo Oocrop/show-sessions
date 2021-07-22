@@ -166,9 +166,10 @@ module.exports = class ShowSessions extends Plugin {
 													return `${
 														Messages.CUSTOM_STATUS
 													}: ${
-														activity.emoji?.name +
-															" " || ""
-													}${activity.state}`;
+														activity.emoji?.id 
+															? `<${activity.emoji.animated? "a" : ""}:${activity.emoji.name}:${activity.emoji.id}>`
+															: activity.emoji?.name + " " || ""
+													}${activity.state || ""}`;
 												case 5:
 													return `${formatWithoutReact(
 														Messages.COMPETING,
