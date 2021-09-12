@@ -35,8 +35,8 @@ module.exports = AsyncComponent.from(
 
 		class SessionList extends React.Component {
 			render() {
-				const sessions = this.props.getSessions();
-				const currentSession = this.props.getSession();
+				const sessions = sessionStore.getSessions();
+				const currentSession = sessionStore.getSession();
 				return (
 					<>
 						<FormSection
@@ -61,6 +61,7 @@ module.exports = AsyncComponent.from(
 					</>
 				);
 			}
+
 			renderItem(session, index, current) {
 				const currentUser = getCurrentUser();
 				return (
@@ -140,11 +141,6 @@ module.exports = AsyncComponent.from(
 			}
 		}
 
-		return connectStores([sessionStore], () => {
-			return {
-				getSessions: sessionStore.getSessions.bind(sessionStore),
-				getSession: sessionStore.getSession.bind(sessionStore)
-			};
-		})(SessionList);
+		return connectStores([sessionStore], () => ({}))(SessionList);
 	})()
 );
