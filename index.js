@@ -44,7 +44,9 @@ module.exports = class ShowSessions extends Plugin {
 		reactInternals.useRef = () => ({});
 		reactInternals.useCallback = c => c;
 
-		const UserSettingsAccount = ConnectedUserAccountSettings().type;
+		const UserSettingsAccount = ConnectedUserAccountSettings({
+			currentUser: {}
+		}).type;
 
 		reactInternals.useMemo = ogUseMemo;
 		reactInternals.useState = ogUseState;
