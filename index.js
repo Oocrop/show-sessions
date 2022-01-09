@@ -3,7 +3,8 @@ const {
 	getModuleByDisplayName,
 	getModule,
 	i18n: { Messages },
-	React
+	React,
+	FluxDispatcher
 } = require("powercord/webpack");
 const { inject, uninject } = require("powercord/injector");
 const SessionList = require("./components/SessionList");
@@ -27,6 +28,14 @@ module.exports = class ShowSessions extends Plugin {
 			"ConnectedUserAccountSettings"
 		);
 
+		await new Promise(resolve => {
+			const listener = () => {
+				resolve();
+				FluxDispatcher.unsubscribe("CONNECTION_OPEN", listener);
+			};
+			FluxDispatcher.subscribe("CONNECTION_OPEN", listener);
+		});
+
 		const reactInternals =
 			React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
 				.ReactCurrentDispatcher.current; // thank you Cynthia for figuring this out so I don't have to
@@ -44,9 +53,7 @@ module.exports = class ShowSessions extends Plugin {
 		reactInternals.useRef = () => ({});
 		reactInternals.useCallback = c => c;
 
-		const UserSettingsAccount = ConnectedUserAccountSettings({
-			currentUser: {}
-		}).type;
+		const UserSettingsAccount = ConnectedUserAccountSettings().type;
 
 		reactInternals.useMemo = ogUseMemo;
 		reactInternals.useState = ogUseState;
