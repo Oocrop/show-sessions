@@ -7,6 +7,7 @@ const {
 	FluxDispatcher
 } = require("powercord/webpack");
 const { inject, uninject } = require("powercord/injector");
+const { wrapInHooks } = require("powercord/util");
 const SessionList = require("./components/SessionList");
 const { STATUS, DEVICE, OS } = require("./constants");
 
@@ -24,43 +25,26 @@ module.exports = class ShowSessions extends Plugin {
 	async startPlugin() {
 		this.loadStylesheet("style.css");
 		this.sessionStore = await getModule(["getActiveSession"]);
+		const { getCurrentUser } = await getModule([
+			"getCurrentUser",
+			"getUser"
+		]);
 		const ConnectedUserAccountSettings = await getModuleByDisplayName(
 			"ConnectedUserAccountSettings"
 		);
 
-		await new Promise(resolve => {
-			const listener = () => {
-				resolve();
-				FluxDispatcher.unsubscribe("CONNECTION_OPEN", listener);
-			};
-			FluxDispatcher.subscribe("CONNECTION_OPEN", listener);
-		});
+		if (getCurrentUser() === null)
+			await new Promise(resolve => {
+				const listener = () => {
+					resolve();
+					FluxDispatcher.unsubscribe("CONNECTION_OPEN", listener);
+				};
+				FluxDispatcher.subscribe("CONNECTION_OPEN", listener);
+			});
 
-		const reactInternals =
-			React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
-				.ReactCurrentDispatcher.current; // thank you Cynthia for figuring this out so I don't have to
-		const ogUseMemo = reactInternals.useMemo;
-		const ogUseState = reactInternals.useState;
-		const ogUseEffect = reactInternals.useEffect;
-		const ogUseLayoutEffect = reactInternals.useLayoutEffect;
-		const ogUseRef = reactInternals.useRef;
-		const ogUseCallback = reactInternals.useCallback;
-
-		reactInternals.useMemo = f => f();
-		reactInternals.useState = v => [v, () => void 0];
-		reactInternals.useEffect = () => null;
-		reactInternals.useLayoutEffect = () => null;
-		reactInternals.useRef = () => ({});
-		reactInternals.useCallback = c => c;
-
-		const UserSettingsAccount = ConnectedUserAccountSettings().type;
-
-		reactInternals.useMemo = ogUseMemo;
-		reactInternals.useState = ogUseState;
-		reactInternals.useEffect = ogUseEffect;
-		reactInternals.useLayoutEffect = ogUseLayoutEffect;
-		reactInternals.useRef = ogUseRef;
-		reactInternals.useCallback = ogUseCallback;
+		const UserSettingsAccount = wrapInHooks(
+			() => ConnectedUserAccountSettings().type
+		)();
 
 		inject(
 			"show-sessions_account-settings",
