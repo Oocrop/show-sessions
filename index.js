@@ -25,22 +25,20 @@ module.exports = class ShowSessions extends Plugin {
 	async startPlugin() {
 		this.loadStylesheet("style.css");
 		this.sessionStore = await getModule(["getActiveSession"]);
-		const { getCurrentUser } = await getModule([
-			"getCurrentUser",
-			"getUser"
-		]);
-		const ConnectedUserAccountSettings = await getModuleByDisplayName(
-			"ConnectedUserAccountSettings"
-		);
 
-		if (getCurrentUser() === null)
-			await new Promise(resolve => {
-				const listener = () => {
-					resolve();
-					FluxDispatcher.unsubscribe("CONNECTION_OPEN", listener);
-				};
-				FluxDispatcher.subscribe("CONNECTION_OPEN", listener);
-			});
+		powercord.api.commands.registerCommand({
+			command: "sessions",
+			description: "Shows active sessions on your account",
+			executor: this.command.bind(this)
+		});
+
+		let ConnectedUserAccountSettings;
+		while (typeof ConnectedUserAccountSettings !== "function") {
+			ConnectedUserAccountSettings = await getModuleByDisplayName(
+				"ConnectedUserAccountSettings"
+			);
+			await new Promise(resolve => setTimeout(resolve, 1e4));
+		}
 
 		const UserSettingsAccount = wrapInHooks(
 			() => ConnectedUserAccountSettings().type
@@ -59,12 +57,6 @@ module.exports = class ShowSessions extends Plugin {
 				return res;
 			}
 		);
-
-		powercord.api.commands.registerCommand({
-			command: "sessions",
-			description: "Shows active sessions on your account",
-			executor: this.command.bind(this)
-		});
 	}
 	pluginWillUnload() {
 		uninject("show-sessions_account-settings");
