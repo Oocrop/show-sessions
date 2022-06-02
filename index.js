@@ -167,7 +167,7 @@ module.exports = class ShowSessions extends Plugin {
 																		.emoji
 																		.id
 															  }>`
-															: " " || ""
+															: `${activity.emoji?.name ?? ""} ` || ""
 													}${activity.state || ""}`;
 												case 5:
 													return `${formatWithoutReact(
